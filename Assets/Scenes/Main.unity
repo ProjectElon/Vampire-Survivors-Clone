@@ -486,6 +486,7 @@ GameObject:
   - component: {fileID: 1417877327}
   - component: {fileID: 1417877331}
   - component: {fileID: 1417877330}
+  - component: {fileID: 1417877332}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -594,10 +595,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveSpeed: 5
-  _trailPrefab: {fileID: 2476993459766222776, guid: 4d002d34ef99066408a04b74921a5f3d, type: 3}
-  _trailParent: {fileID: 2086702041}
-  _trailSpawnRate: 0.1
-  _trailLifeTime: 0.3
 --- !u!50 &1417877331
 Rigidbody2D:
   serializedVersion: 4
@@ -625,6 +622,23 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &1417877332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1417877326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50a74235d26eb45418f539a48d856cda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ghostTrailObjectPool: {fileID: 2086702042}
+  _parent: {fileID: 2089166034}
+  _color: {r: 0.7924528, g: 0.59505457, b: 0.31025273, a: 1}
+  _spawnRate: 0.05
+  _lifeTime: 0.15
 --- !u!1 &2086702040
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,8 +648,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2086702041}
+  - component: {fileID: 2086702042}
   m_Layer: 0
-  m_Name: Trails
+  m_Name: GhostTrailObjectPool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -656,12 +671,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2086702042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086702040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64efd3976d9280b40a1713a2d347ca78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectToPool: {fileID: 4951563517064207323, guid: 4d002d34ef99066408a04b74921a5f3d, type: 3}
+  _objectCount: 1024
+--- !u!1 &2089166033
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2089166034}
+  m_Layer: 0
+  m_Name: GhostTrails
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2089166034
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089166033}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 775954149}
   - {fileID: 519420032}
   - {fileID: 619394802}
-  - {fileID: 775954149}
   - {fileID: 1417877329}
   - {fileID: 2086702041}
+  - {fileID: 2089166034}

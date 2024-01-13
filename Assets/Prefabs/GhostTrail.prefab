@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4106316393631908596}
   - component: {fileID: 460897930903111853}
-  - component: {fileID: 2476993459766222776}
+  - component: {fileID: 1914616969463187806}
   m_Layer: 0
-  m_Name: Trail
+  m_Name: GhostTrail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2476993459766222776
+--- !u!114 &1914616969463187806
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,4 +97,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6776fb1e785a694cb15327706f39720, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lifeTime: 0
+  _lifeTime: 1
