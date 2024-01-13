@@ -309,13 +309,13 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.6060606
-    height: 0.88235295
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.625
+  orthographic size: 6.2083335
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -377,7 +377,7 @@ MonoBehaviour:
   m_RefResolutionX: 320
   m_RefResolutionY: 180
   m_CropFrame: 0
-  m_GridSnapping: 2
+  m_GridSnapping: 0
   m_FilterMode: 0
   m_UpscaleRT: 0
   m_PixelSnapping: 0
@@ -509,7 +509,7 @@ GameObject:
   - component: {fileID: 1125352006}
   - component: {fileID: 1125352007}
   m_Layer: 0
-  m_Name: Map
+  m_Name: InfiniteMap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -11,7 +11,6 @@ public class GhostTrail : MonoBehaviour
 
     private void Awake()
     {
-        _aliveTimer = 0.0f;
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -29,5 +28,6 @@ public class GhostTrail : MonoBehaviour
         _spriteRenderer.sprite = sprite;
         _spriteRenderer.color = color;
         _lifeTime = lifeTime;
+        _aliveTimer = 0.0f;
     }
 }
