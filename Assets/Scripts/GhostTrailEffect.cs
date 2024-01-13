@@ -33,12 +33,12 @@ public class GhostTrailEffect : MonoBehaviour
             GhostTrail ghostTrail = ghostTrailGameObject.GetComponent<GhostTrail>();
             ghostTrail.Setup(_spriteRenderer.sprite, _color, _lifeTime);
 
-            StartCoroutine(DestroyGhostTrailAfter(ghostTrailGameObject, _lifeTime));
+            StartCoroutine(DestroyGhostTrail(ghostTrailGameObject, _lifeTime));
             ghostTrailGameObject.SetActive(true);
         }
     }
-
-    IEnumerator DestroyGhostTrailAfter(GameObject gameObject, float time)
+    
+    IEnumerator DestroyGhostTrail(GameObject gameObject, float time)
     {
         yield return new WaitForSeconds(time);
         _ghostTrailObjectPool.Destroy(gameObject);

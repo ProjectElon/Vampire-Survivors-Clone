@@ -25,21 +25,26 @@ public class PlayerController : MonoBehaviour
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")); 
         _movementInput += input;
 
-        Vector3 rotation = transform.localEulerAngles;
-
-        if (input.x > 0.0f)
+        // Handle Facing Direction
         {
-            rotation.y = 0.0f;
-        }
-        else if (input.x < 0.0f)
-        {
-            rotation.y = 180.0f;
-        }
+            Vector3 rotation = transform.localEulerAngles;
 
-        transform.localEulerAngles = rotation;
+            if (input.x > 0.0f)
+            {
+                rotation.y = 0.0f;
+            }
+            else if (input.x < 0.0f)
+            {
+                rotation.y = 180.0f;
+            }
+            
+            transform.localEulerAngles = rotation;    
+        }
 
         bool isMoving = input.x != 0.0f || input.y != 0.0f;
+
         _ghostTrailEffect.enabled = isMoving;
+
         _animator.SetBool("IsMoving", isMoving);
     }
 
