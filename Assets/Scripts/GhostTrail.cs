@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class GhostTrail : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class GhostTrail : MonoBehaviour
     
     private float _aliveTimer;
     private SpriteRenderer _spriteRenderer;
+
+    private IObjectPool<GhostTrail> _objectPool;
+    public IObjectPool<GhostTrail> ObjectPool { set => _objectPool = value; }
 
     private void Awake()
     {
@@ -29,5 +33,12 @@ public class GhostTrail : MonoBehaviour
         _spriteRenderer.color = color;
         _lifeTime = lifeTime;
         _aliveTimer = 0.0f;
+        StartCoroutine(ReleaseToObjectPool());
+    }
+
+    private IEnumerator ReleaseToObjectPool()
+    {
+        yield return new WaitForSeconds(_lifeTime);
+        _objectPool.Release(this);
     }
 }
