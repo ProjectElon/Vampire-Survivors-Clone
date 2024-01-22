@@ -6,10 +6,9 @@ public class Arrow : MonoBehaviour
 {
     [SerializeField] private float _impluseForce = 15.0f;
     [SerializeField] private float _lifeTime = 5.0f;
-
+    [SerializeField] private int _damage = 20;
     private IObjectPool<Arrow> _objectPool; 
     public IObjectPool<Arrow> ObjectPool { set => _objectPool = value; }
-
     private Rigidbody2D _rb;
     
     private void Awake()
@@ -39,6 +38,12 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if (other.gameObject.TryGetComponent(out IDamageable damageable))
+        {
+            damageable.TakeDamage(_damage, _rb.velocity.normalized);
+            _objectPool.Release(this);
+        }
+
         Reset();
     }
 }

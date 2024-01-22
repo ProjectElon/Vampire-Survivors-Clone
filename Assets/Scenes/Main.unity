@@ -315,7 +315,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6.2083335
+  orthographic size: 6.3125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -719,7 +719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 5
   _arrowPrefab: {fileID: 7160227696936604988, guid: 8d223b862a4479042afbf69366622bf3, type: 3}
-  _weapownCooldown: 0.5
+  _weapownCooldown: 1
 --- !u!50 &1417877331
 Rigidbody2D:
   serializedVersion: 4

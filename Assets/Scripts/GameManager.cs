@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get; private set; }
     public IObjectPool<Arrow> ArrowPool { get; private set; }
+    public IObjectPool<Enemy> EnemyPool { get; private set; }
 
     private void Awake()
     {
@@ -20,13 +21,20 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
             ArrowPool = new ObjectPool<Arrow>(CreateArrow, OnGetFromPool, GetReleaseFromPool, OnDestroyPoolObject, true, 100, 1000);
+            EnemyPool = new ObjectPool<Enemy>(CreateEnemy, OnGetFromPool, GetReleaseFromPool, OnDestroyPoolObject, true, 100, 1000);
         }
         
         for (int i = 0; i < _enemyCount; i++)
         {
-            float range = 10.0f;
-            Vector3 position = new Vector3(Random.Range(-range, range), Random.Range(-range, range), 0.0f);
-            Enemy enemy = Instantiate(_enemyPrefab, position + _player.position, Quaternion.identity);
+            Camera cam = Camera.main;
+            
+            float camWidth = 2.0f * cam.orthographicSize;
+            float camHeight = cam.aspect * camWidth;
+
+            float range = 1.0f;
+            Vector2 randomPosition = new Vector2(Random.Range(0, range), Random.Range(0, range)) + new Vector2(camWidth * 0.5f, camHeight * 0.5f);
+            Enemy enemy = EnemyPool.Get();
+            enemy.transform.position = randomPosition + (Vector2)cam.transform.position;
             enemy.Target = _player;
         }
     }
@@ -52,5 +60,28 @@ public class GameManager : MonoBehaviour
     private void OnDestroyPoolObject(Arrow arrow)
     {
         Destroy(arrow.gameObject);
+    }
+
+    private Enemy CreateEnemy()
+    {
+        Enemy enemy = Instantiate(_enemyPrefab);
+        enemy.gameObject.SetActive(false);
+        enemy.ObjectPool = EnemyPool;
+        return enemy;
+    }
+
+    private void OnGetFromPool(Enemy enemy)
+    {
+        enemy.gameObject.SetActive(true);
+    }
+
+    private void GetReleaseFromPool(Enemy enemy)
+    {
+        enemy.gameObject.SetActive(false);
+    }
+
+    private void OnDestroyPoolObject(Enemy enemy)
+    {
+        Destroy(enemy.gameObject);
     }
 }
