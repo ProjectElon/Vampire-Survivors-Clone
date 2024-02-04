@@ -121,7 +121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _impluseForce: 15
   _lifeTime: 5
-  _damage: 20
+  _damage: 25
 --- !u!1 &8901263778010432793
 GameObject:
   m_ObjectHideFlags: 0

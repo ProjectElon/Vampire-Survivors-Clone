@@ -41,7 +41,7 @@ public class Arrow : MonoBehaviour
         if (other.gameObject.TryGetComponent(out IDamageable damageable))
         {
             damageable.TakeDamage(_damage, _rb.velocity.normalized);
-            _objectPool.Release(this);
+            gameObject.SetActive(false);
         }
 
         Reset();
