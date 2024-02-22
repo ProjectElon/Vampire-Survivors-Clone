@@ -7,33 +7,33 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [SerializeField] private float _moveSpeed = 5.0f;
-    [SerializeField] private Arrow _arrowPrefab;
-    [SerializeField] private float _weapownCooldown = 0.5f;
-    [SerializeField] private int _maxHealth;
-    [SerializeField] private float _damageTime = 0.1667f;
-    [SerializeField] private bool _canFire = false;
+    public float MoveSpeed => _moveSpeed;
 
-    private float _damageTimer;
+    [SerializeField] private int _maxHealth;
     private int _health;
-    
+
+    [SerializeField] private float _takeDamageTime = 0.5f;
+    private float _takeDamageTimer;
+
     private Vector2 _movementInput;
-    private Vector2 _lastValidInput;
-    private float _weapownTimer;
+    private Vector2 _lookDirection;
+    public Vector2 LookDirection => _lookDirection;
     
     private Rigidbody2D _rb;
+    private SpriteRenderer _spriteRenderer;
     private Animator _animator;
     private GhostTrailEffect _ghostTrailEffect;
-
+    public bool IsMoving => _rb.velocity.sqrMagnitude >= 0;
     private void Awake()
     {
         _health = _maxHealth;
         _movementInput = Vector2.zero;
-        _weapownTimer = 0;
-        _damageTimer = _damageTime;
+        _takeDamageTimer = _takeDamageTime;
         
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _ghostTrailEffect = GetComponent<GhostTrailEffect>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -60,35 +60,25 @@ public class PlayerController : MonoBehaviour, IDamageable
         bool isMoving = input.x != 0.0f || input.y != 0.0f;
         if (isMoving)
         {
-            _lastValidInput = input;
-        }
-
-        _weapownTimer += Time.deltaTime;
-        
-        while (_weapownTimer > _weapownCooldown)
-        {
-            _weapownTimer -= _weapownCooldown;
-            
-            Vector2 arrowDirection = _lastValidInput.normalized; 
-            float arrowAngle = Mathf.Atan2(arrowDirection.y, arrowDirection.x) * Mathf.Rad2Deg;
-            if (_canFire)
-            {
-                for (int i = -2; i <= 2; i++)
-                {
-                    Arrow arrow = GameManager.Instance.ArrowPool.Get();
-                    arrow.transform.SetPositionAndRotation(transform.position, Quaternion.Euler(0.0f, 0.0f, arrowAngle + 5.0f * i));
-                    arrow.SetUp();
-                }
-            }
-        }
-
-        if (_damageTimer < _damageTime)
-        {
-            _damageTimer += Time.deltaTime;
+            _lookDirection = input.normalized;
         }
 
         _ghostTrailEffect.enabled = isMoving;
         _animator.SetBool("IsMoving", isMoving);
+
+        if (_takeDamageTimer < _takeDamageTime)
+        {
+            _takeDamageTimer += Time.deltaTime;
+            Color color = Color.red;
+            float t = Mathf.Clamp01(_takeDamageTimer / _takeDamageTime);
+            color.r = 0.7f;
+            color.a = Mathf.Abs( Mathf.Sin( t * 2.0f * Mathf.PI ) );
+            _spriteRenderer.color = color;
+        }
+        else
+        {
+            _spriteRenderer.color = Color.white;
+        }
     }
 
     private void FixedUpdate()
@@ -99,18 +89,20 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount, Vector2 direction)
     {
-        if (_damageTimer < _damageTime) return;
-        _damageTimer = 0.0f;
+        bool canTakeDamage = _takeDamageTimer >= _takeDamageTime; 
+        if (!canTakeDamage)
+        {
+            return;
+        }
 
         _health = Mathf.Max(_health - amount, 0);
-
         if (_health == 0)
         {
             Die();
         }
         else
         {
-            _animator.SetTrigger("TakeDamage");
+            _takeDamageTimer = 0.0f;
         }
     }
     

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
@@ -7,17 +8,15 @@ using UnityEngine.Pool;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Transform _player;
-    [SerializeField] private Arrow _arrowPrefab;
-
-    [SerializeField] private int _enemyCount = 100;
+    private PlayerController _playerController;
+    
+    [SerializeField] private int _enemyCount;
     [SerializeField] private Enemy _enemyPrefab;
     [SerializeField] private LayerMask _enemyLayerMask;
     
-    private Rigidbody2D[] _rbs;
-    private CircleCollider2D[] _colliders;
-
+    private List<Enemy> _enemies;
+    
     public static GameManager Instance { get; private set; }
-    public IObjectPool<Arrow> ArrowPool { get; private set; }
     public IObjectPool<Enemy> EnemyPool { get; private set; }
 
     private void Awake()
@@ -27,11 +26,10 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
-        ArrowPool = new ObjectPool<Arrow>(CreateArrow, OnGetFromPool, GetReleaseFromPool, OnDestroyPoolObject, true, 100, 1000);
-        EnemyPool = new ObjectPool<Enemy>(CreateEnemy, OnGetFromPool, GetReleaseFromPool, OnDestroyPoolObject, true, 100, 1000);
-        
-        _rbs = new Rigidbody2D[_enemyCount];
-        _colliders = new CircleCollider2D[_enemyCount];
+        _playerController = _player.GetComponent<PlayerController>();
+
+        EnemyPool = new ObjectPool<Enemy>(CreateEnemy, OnGetFromPool, GetReleaseFromPool, OnDestroyPoolObject, true, 500, 1000);
+        _enemies = new List<Enemy>();
 
         Camera cam = Camera.main;
             
@@ -43,96 +41,92 @@ public class GameManager : MonoBehaviour
         {
             float range = 2.0f;
             Vector2 randomOffset = Random.insideUnitCircle.normalized * (r + Random.Range(0, range));
-            // randomOffset += new Vector2(Random.Range(-range, range), Random.Range(-range, range));
+            randomOffset += new Vector2(Random.Range(-range, range), Random.Range(-range, range));
             
             Enemy enemy = EnemyPool.Get();
             enemy.transform.position = randomOffset + (Vector2)cam.transform.position;
-            enemy.Target = _player;
-
-            _rbs[i] = enemy.GetComponent<Rigidbody2D>();
-            _colliders[i] = enemy.GetComponent<CircleCollider2D>();
         }
     }
 
     private void FixedUpdate()
     {
         float moveSpeed = 1.0f;
-        float radiusBias = 0.05f;
+        float radiusBias = 0.1f;
         
-        for (int i = 0; i < _enemyCount; i++)
+        for (int i = 0; i < _enemies.Count; i++)
         {
-            Rigidbody2D rbi = _rbs[i];
-            CircleCollider2D collideri = _colliders[i];
+            Enemy enemy = _enemies[i];
+            Rigidbody2D rb = enemy.Rigidbody;
+            CircleCollider2D collider = enemy.Collider;
 
-            Vector2 pos = rbi.transform.position;
+            Vector2 pos = rb.transform.position;
             Vector2 posToPlayer = (Vector2)_player.position - pos;
+
+            Vector2 lookDir = Vector2.zero;
+
+            if (posToPlayer.sqrMagnitude > 0.0f)
+            {
+                lookDir = posToPlayer.normalized;
+                float lookAngle = Mathf.Clamp01(Mathf.Sign(lookDir.x) * -1.0f) * 180.0f;
+                Quaternion newRotation = Quaternion.Euler(0.0f, lookAngle, 0.0f);
+                rb.transform.rotation = newRotation;
+            }
+
+            float teleportRadius = 30.0f;
+            if (posToPlayer.sqrMagnitude >= teleportRadius * teleportRadius)
+            {
+                rb.transform.position = _player.transform.position + (Vector3)lookDir * Mathf.Sign(Random.Range(-1f, 1.0f)) * teleportRadius;
+                continue;
+            }
             
-            Vector2 lookDir = posToPlayer.normalized;
-            float lookAngle = Mathf.Clamp01(Mathf.Sign(lookDir.x) * -1.0f) * 180.0f;
-            Quaternion newRotation = Quaternion.Euler(0.0f, lookAngle, 0.0f);
-            rbi.transform.rotation = newRotation;
-            
-            float ri = collideri.radius + radiusBias;
+            float radius = collider.radius + radiusBias;
 
             Vector2 separation = Vector2.zero;
-            
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(rbi.position, ri * 2.0f);
-            foreach (CircleCollider2D collider in colliders)
+            int separationCount = 0;
+
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(rb.position, radius * 2.0f, _enemyLayerMask);
+            foreach (CircleCollider2D neighbourCollider in colliders)
             {
-                if (collider != collideri)
+                if (collider != neighbourCollider)
                 {   
-                    float rj = collider.radius + radiusBias;
-                    Vector2 offset = rbi.position - (Vector2)collider.transform.position;
-                    if (offset.sqrMagnitude < (ri + rj) * (ri + rj))
+                    float neighbourRadius = neighbourCollider.radius + radiusBias;
+                    Vector2 offset = rb.position - (Vector2)neighbourCollider.transform.position;
+                    if (offset.sqrMagnitude < (radius + neighbourRadius) * (radius + neighbourRadius))
                     {
-                        float pushDist = (ri + rj) - offset.magnitude;
+                        float pushDist = (radius + neighbourRadius) - offset.magnitude;
                         separation += offset.normalized * pushDist;
+                        separationCount++;
                     }
                 }
             }
             
-            float totalMoveDist = moveSpeed * Time.fixedDeltaTime;
+            float dist = moveSpeed * Time.fixedDeltaTime;
             float separationDist = 0.0f;
-            float moveDist = 0.0f;
-
-            float rr = collideri.radius * 0.5f;
-
-            if (separation.sqrMagnitude >= totalMoveDist * totalMoveDist || posToPlayer.sqrMagnitude <= rr * rr)
+            float moveDist = 0.0f;    
+            float separationFactor = 10.0f;
+            
+            if (separationCount > 0)
             {
-                separationDist = totalMoveDist;
-            }
-            else
-            {
-                separationDist = separation.magnitude;
-                moveDist = totalMoveDist - separationDist;
+                separationDist = separation.magnitude * separationFactor * Time.fixedDeltaTime;
             }
 
-            Vector2 newPos = rbi.position + separation.normalized * separationDist + lookDir * moveDist;
-            rbi.MovePosition(newPos);
+            if (separationDist < dist)
+            {
+                moveDist = dist - separationDist; 
+            }
+            
+            if (posToPlayer.sqrMagnitude < radius * radius)
+            {
+                if (_playerController.IsMoving)
+                {
+                    moveDist = -_playerController.MoveSpeed * Time.fixedDeltaTime;
+                }
+                _playerController.TakeDamage(enemy.Damge, -lookDir);
+            }
+            
+            Vector2 newPos = rb.position + separation * separationFactor * Time.fixedDeltaTime + lookDir * moveDist;
+            rb.MovePosition(newPos);
         }
-    }
-
-    private Arrow CreateArrow()
-    {
-        Arrow arrow = Instantiate(_arrowPrefab);
-        arrow.gameObject.SetActive(false);
-        arrow.ObjectPool = ArrowPool;
-        return arrow;
-    }
-
-    private void OnGetFromPool(Arrow arrow)
-    {
-        arrow.gameObject.SetActive(true);
-    }
-
-    private void GetReleaseFromPool(Arrow arrow)
-    {
-        arrow.gameObject.SetActive(false);
-    }
-
-    private void OnDestroyPoolObject(Arrow arrow)
-    {
-        Destroy(arrow.gameObject);
     }
 
     private Enemy CreateEnemy()
@@ -145,11 +139,13 @@ public class GameManager : MonoBehaviour
 
     private void OnGetFromPool(Enemy enemy)
     {
+        _enemies.Add(enemy);
         enemy.gameObject.SetActive(true);
     }
 
     private void GetReleaseFromPool(Enemy enemy)
     {
+        _enemies.Remove(enemy);
         enemy.gameObject.SetActive(false);
     }
 
