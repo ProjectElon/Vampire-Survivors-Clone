@@ -307,10 +307,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
-    y: 0.009900991
-    width: 1
-    height: 0.980198
+    x: 0.046336208
+    y: 0
+    width: 0.9070881
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -377,8 +377,8 @@ MonoBehaviour:
   m_RefResolutionX: 320
   m_RefResolutionY: 180
   m_CropFrame: 4
-  m_GridSnapping: 2
-  m_FilterMode: 0
+  m_GridSnapping: 1
+  m_FilterMode: 1
   m_UpscaleRT: 0
   m_PixelSnapping: 0
   m_CropFrameX: 0
@@ -543,7 +543,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 1417877329}
-  _enemyCount: 100
+  _enemyCount: 10
   _enemyPrefab: {fileID: 1825844422829151805, guid: d55d0484bebbe2a42b7f897e6c51e530, type: 3}
   _enemyLayerMask:
     serializedVersion: 2
@@ -721,7 +721,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 5
   _maxHealth: 100
-  _damageTime: 0.5
+  _takeDamageTime: 0.4
 --- !u!50 &1417877331
 Rigidbody2D:
   serializedVersion: 4
@@ -800,6 +800,52 @@ CircleCollider2D:
   m_Offset: {x: 0.016618371, y: -0.38283122}
   serializedVersion: 2
   m_Radius: 0.32989347
+--- !u!1 &1604064936
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1604064937}
+  - component: {fileID: 1604064938}
+  m_Layer: 0
+  m_Name: Weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1604064937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604064936}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1604064938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604064936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 753cd84a92dd13f4cb63e4579079e88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponData: {fileID: 11400000, guid: cc8841ca7bf35094589291fcc385a970, type: 2}
+  _player: {fileID: 1417877329}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -810,3 +856,4 @@ SceneRoots:
   - {fileID: 1125352006}
   - {fileID: 816057300}
   - {fileID: 1417877329}
+  - {fileID: 1604064937}

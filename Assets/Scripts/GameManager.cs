@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour
 
         Camera cam = Camera.main;
             
-        float camWidth = 2.0f * cam.orthographicSize;
-        float camHeight = cam.aspect * camWidth;
+        float camHeight = 2.0f * cam.orthographicSize;
+        float camWidth = cam.aspect * camHeight;
         float r = Mathf.Max(camWidth, camHeight);
 
         for (int i = 0; i < _enemyCount; i++)
@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
                 rb.transform.rotation = newRotation;
             }
 
-            float teleportRadius = 30.0f;
+            float teleportRadius = 20.0f;
             if (posToPlayer.sqrMagnitude >= teleportRadius * teleportRadius)
             {
                 rb.transform.position = _player.transform.position + (Vector3)lookDir * Mathf.Sign(Random.Range(-1f, 1.0f)) * teleportRadius;

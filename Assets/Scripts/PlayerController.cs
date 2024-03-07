@@ -9,12 +9,12 @@ public class PlayerController : MonoBehaviour, IDamageable
     [SerializeField] private float _moveSpeed = 5.0f;
     public float MoveSpeed => _moveSpeed;
 
-    [SerializeField] private int _maxHealth;
+    [SerializeField] private int _maxHealth = 100;
     private int _health;
 
     [SerializeField] private float _takeDamageTime = 0.5f;
-    private float _takeDamageTimer;
-
+    private bool _isTakingDamage;
+    
     private Vector2 _movementInput;
     private Vector2 _lookDirection;
     public Vector2 LookDirection => _lookDirection;
@@ -24,11 +24,12 @@ public class PlayerController : MonoBehaviour, IDamageable
     private Animator _animator;
     private GhostTrailEffect _ghostTrailEffect;
     public bool IsMoving => _rb.velocity.sqrMagnitude >= 0;
+
     private void Awake()
     {
         _health = _maxHealth;
+        _isTakingDamage = false;
         _movementInput = Vector2.zero;
-        _takeDamageTimer = _takeDamageTime;
         
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
@@ -62,23 +63,9 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             _lookDirection = input.normalized;
         }
-
+        
         _ghostTrailEffect.enabled = isMoving;
         _animator.SetBool("IsMoving", isMoving);
-
-        if (_takeDamageTimer < _takeDamageTime)
-        {
-            _takeDamageTimer += Time.deltaTime;
-            Color color = Color.red;
-            float t = Mathf.Clamp01(_takeDamageTimer / _takeDamageTime);
-            color.r = 0.7f;
-            color.a = Mathf.Abs( Mathf.Sin( t * 2.0f * Mathf.PI ) );
-            _spriteRenderer.color = color;
-        }
-        else
-        {
-            _spriteRenderer.color = Color.white;
-        }
     }
 
     private void FixedUpdate()
@@ -89,12 +76,11 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount, Vector2 direction)
     {
-        bool canTakeDamage = _takeDamageTimer >= _takeDamageTime; 
-        if (!canTakeDamage)
+        if (_isTakingDamage)
         {
             return;
         }
-
+        
         _health = Mathf.Max(_health - amount, 0);
         if (_health == 0)
         {
@@ -102,8 +88,17 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
         else
         {
-            _takeDamageTimer = 0.0f;
+            StartCoroutine(TakeDamage_CR());
         }
+    }
+
+    IEnumerator TakeDamage_CR()
+    {
+        _isTakingDamage = true;
+        _spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(_takeDamageTime);
+        _isTakingDamage = false;
+        _spriteRenderer.color = Color.white;
     }
     
     private void Die()
